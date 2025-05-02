@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}{{ object.titre }}{% endblock %}
+{% block content %}
+
+<h2>{{ object.titre }}</h2>
+<p><strong>Date :</strong> {{ object.date|date:"d M Y H:i" }}</p>
+<p><strong>Lieu :</strong> {{ object.lieu }}</p>
+<p><strong>Description :</strong></p>
+<p>{{ object.description }}</p>
+
+<a href="{% url 'evenement_update' object.pk %}" class="btn btn-warning">Modifier</a>
+<a href="{% url 'evenement_delete' object.pk %}" class="btn btn-danger">Supprimer</a>
+<a href="{% url 'evenement_list' %}" class="btn btn-secondary">Retour à la liste</a>
+
+{% endblock %}

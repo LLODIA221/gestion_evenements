@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load form_filters %}
+{% block title %}{{ form.instance.pk|yesno:"Modifier un événement,Créer un événement" }}{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow p-4" style="width: 100%; max-width: 600px;">
+        <h2 class="text-center mb-4">
+            {{ form.instance.pk|yesno:"Modifier un événement,Nouvel événement" }}
+        </h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="id_titre" class="form-label">Titre</label>
+                {{ form.titre|add_class:"form-control" }}
+            </div>
+
+            <div class="mb-3">
+                <label for="id_description" class="form-label">Description</label>
+                {{ form.description|add_class:"form-control" }}
+            </div>
+
+            <div class="mb-3">
+                <label for="id_date" class="form-label">Date et heure</label>
+                {{ form.date|add_class:"form-control" }}
+            </div>
+
+            <div class="mb-3">
+                <label for="id_lieu" class="form-label">Lieu</label>
+                {{ form.lieu|add_class:"form-control" }}
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a href="{% url 'evenement_list' %}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

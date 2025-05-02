@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% load form_filters %}
+{% block title %}Créer un compte{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Style pour les règles de mot de passe */
+    .password-criteria {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+    
+    .password-criteria li {
+        position: relative;
+        list-style-type: none;
+        margin-bottom: 0.3rem;
+        color: #dc3545;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+    
+    /* Style pour les messages d'erreur */
+    .error-message {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+    
+    /* Règle en état valide - cachée avec transition */
+    .valid-criteria {
+        max-height: 0;
+        opacity: 0;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    /* Règle en état invalide - visible */
+    .invalid-criteria {
+        max-height: 2rem;
+        opacity: 1;
+        padding-bottom: 0.3rem;
+    }
+    
+    /* Afficher les règles uniquement quand il y a des erreurs ou lors du focus */
+    .password-rules {
+        margin-top: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    /* Cache complètement les règles quand toutes sont validées */
+    .all-valid {
+        max-height: 0;
+        opacity: 0;
+        margin: 0;
+        overflow: hidden;
+    }
+    
+    /* Icône avant chaque règle */
+    .invalid-criteria::before {
+        content: "•";
+        position: absolute;
+        left: -1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow my-4">
+                <div class="card-header bg-white">
+                    <h2 class="text-center mb-0">Créer un compte</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3 {% if form.username.errors %}has-error{% endif %}">
+                            <label for="username" class="form-label">Nom d'utilisateur :</label>
+                            <input type="text" id="username" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" value="{{ form.username.value|default:'' }}" required>
+                            {% if form.username.errors %}
+                                <div class="error-message">
+                                    {% for error in form.username.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3 {% if form.password1.errors %}has-error{% endif %}">
+                            <label for="password" class="form-label">Mot de passe :</label>
+                            <input type="password" id="password" name="password1" class="form-control password-field {% if form.password1.errors %}is-invalid{% endif %}" required>
+                            {% if form.password1.errors %}
+                                <div class="error-message">
+                                    {% for error in form.password1.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="password-rules" id="password-rules">
+                                <ul class="password-criteria" id="password-criteria-list">
+                                    <li id="criteria-personal" class="criteria-item invalid-criteria" data-criteria="personal">
+                                        Ne doit pas ressembler à vos informations personnelles
+                                    </li>
+                                    <li id="criteria-length" class="criteria-item invalid-criteria" data-criteria="length">
+                                        Doit contenir au minimum 8 caractères
+                                    </li>
+                                    <li id="criteria-common" class="criteria-item invalid-criteria" data-criteria="common">
+                                        Doit contenir au moins une majuscule et un chiffre
+                                    </li>
+                                    <li id="criteria-numeric" class="criteria-item invalid-criteria" data-criteria="numeric">
+                                        Ne doit pas être entièrement numérique
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 {% if form.password2.errors %}has-error{% endif %}">
+                            <label for="password_confirm" class="form-label">Confirmation du mot de passe :</label>
+                            <input type="password" id="password_confirm" name="password2" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" required>
+                            {% if form.password2.errors %}
+                                <div class="error-message">
+                                    {% for error in form.password2.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Champs cachés pour d'éventuelles données additionnelles -->
+                        <input type="hidden" name="next" value="{{ next|default:'' }}">
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">S'inscrire</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <p class="text-center">
+                Déjà inscrit ? <a href="{% url 'login' %}">Se connecter</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const passwordField = document.getElementById('password');
+        const criteriaItems = document.querySelectorAll('.criteria-item');
+        const passwordRules = document.getElementById('password-rules');
+        
+        // Fonction pour vérifier si toutes les règles sont validées
+        function checkAllValid() {
+            let allValid = true;
+            criteriaItems.forEach(item => {
+                if (!item.classList.contains('valid-criteria')) {
+                    allValid = false;
+                }
+            });
+            
+            // Si toutes les règles sont validées, masquer complètement la section
+            if (allValid) {
+                passwordRules.classList.add('all-valid');
+            } else {
+                passwordRules.classList.remove('all-valid');
+            }
+            
+            return allValid;
+        }
+        
+        // Initialisation - toutes les règles sont invalides au début
+        criteriaItems.forEach(item => {
+            item.classList.add('invalid-criteria');
+        });
+        
+        // Événement de focus pour afficher les règles
+        passwordField.addEventListener('focus', function() {
+            passwordRules.classList.remove('all-valid');
+        });
+        
+        // Événement de perte de focus pour masquer les règles si tout est valide
+        passwordField.addEventListener('blur', function() {
+            if (checkAllValid()) {
+                passwordRules.classList.add('all-valid');
+            }
+        });
+        
+        // Validation en temps réel
+        passwordField.addEventListener('input', function() {
+            const password = this.value;
+            const username = document.getElementById('username').value;
+            
+            // Vérification de la longueur
+            const lengthCriteria = document.getElementById('criteria-length');
+            if(password.length >= 8) {
+                lengthCriteria.classList.add('valid-criteria');
+                lengthCriteria.classList.remove('invalid-criteria');
+            } else {
+                lengthCriteria.classList.add('invalid-criteria');
+                lengthCriteria.classList.remove('valid-criteria');
+            }
+            
+            // Vérification si entièrement numérique
+            const numericCriteria = document.getElementById('criteria-numeric');
+            if(!/^\d+$/.test(password) || password === '') {
+                numericCriteria.classList.add('valid-criteria');
+                numericCriteria.classList.remove('invalid-criteria');
+            } else {
+                numericCriteria.classList.add('invalid-criteria');
+                numericCriteria.classList.remove('valid-criteria');
+            }
+            
+            // Vérification basique de similarité avec le nom d'utilisateur
+            const personalCriteria = document.getElementById('criteria-personal');
+            if(username && password.includes(username) && username.length > 2) {
+                personalCriteria.classList.add('invalid-criteria');
+                personalCriteria.classList.remove('valid-criteria');
+            } else {
+                personalCriteria.classList.add('valid-criteria');
+                personalCriteria.classList.remove('invalid-criteria');
+            }
+            
+            // La vérification "mot de passe courant" ne peut pas être faite côté client
+            // On la met comme valide après quelques caractères
+            const commonCriteria = document.getElementById('criteria-common');
+            if(password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
+                commonCriteria.classList.add('valid-criteria');
+                commonCriteria.classList.remove('invalid-criteria');
+            } else {
+                commonCriteria.classList.add('invalid-criteria');
+                commonCriteria.classList.remove('valid-criteria');
+            }
+            
+            // Vérifier si toutes les règles sont valides
+            checkAllValid();
+        });
+    });
+</script>
+{% endblock %}

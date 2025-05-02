@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Mes événements{% endblock %}
+{% block content %}
+
+<h2 class="mb-4">Mes événements</h2>
+
+<a href="{% url 'evenement_create' %}" class="btn btn-success mb-3">Ajouter un événement</a>
+
+{% if evenements %}
+    <div class="list-group">
+        {% for event in evenements %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <strong><a href="{% url 'evenement_detail' event.pk %}">{{ event.titre }}</a></strong><br>
+                <small>{{ event.date|date:"d M Y H:i" }} — {{ event.lieu }}</small>
+            </div>
+            <div>
+                <a href="{% url 'evenement_update' event.pk %}" class="btn btn-sm btn-warning me-2">Modifier</a>
+                <a href="{% url 'evenement_delete' event.pk %}" class="btn btn-sm btn-danger">Supprimer</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Aucun événement pour l’instant.</p>
+{% endif %}
+
+{% endblock %}
