@@ -12,14 +12,10 @@ Une application web simple de gestion d’événements avec système d'authentif
 
 ##  Technologies utilisées
 
-- Python 3.10+
-- Django 5.x
+- Python 3.13
+- Django 5.2
 - HTML5 / CSS3 (Bootstrap 5)
 - SQLite (base de données par défaut)
-
-##  Captures d’écran
-
-- Ajoute ici des captures si tu veux impressionner le recruteur*
 
 ## **Installation**
 
