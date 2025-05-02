@@ -25,7 +25,7 @@ Une application web simple de gestion d’événements avec système d'authentif
 
 1. ## **Cloner le dépôt**
 
-    - "git clone https://github.com/votre-utilisateur/gestion-evenements.git "
+    - "[git clone https://github.com/votre-utilisateur/gestion-evenements.git](https://github.com/LLODIA221/gestion_evenements.git) "
     - cd gestion-evenements
 
 2. ## **Créer un environnement virtuel**
